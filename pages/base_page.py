@@ -21,7 +21,7 @@ class BasePage:
     def click_element(self, locator):
         try:
             element = self.wait.until(EC.element_to_be_clickable(locator))
-            self.driver.execute_script("arguments[0].scrollIntoView();", element)
+            self.scroll_to_element(element)  # Используем новый метод
             element.click()
         except TimeoutException as e:
             print(f"Элемент не кликабельный: {locator}. Ошибка: {e}")
@@ -44,3 +44,31 @@ class BasePage:
             return True
         except TimeoutException:
             return False
+
+    # Новый метод для прокрутки элемента
+    @allure.step("Прокрутка к элементу")
+    def scroll_to_element(self, element):
+        self.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", element)
+
+    # Метод для клика через JavaScript
+    @allure.step("Клик по элементу через JavaScript: {element}")
+    def execute_script_click(self, element):
+        self.driver.execute_script("arguments[0].click();", element)
+
+    # Методы для работы с окнами
+    @allure.step("Переключение на окно: {window_handle}")
+    def switch_to_window(self, window_handle):
+        self.driver.switch_to.window(window_handle)
+
+    @allure.step("Получение списка окон")
+    def get_window_handles(self):
+        return self.driver.window_handles
+
+    @allure.step("Закрытие текущего окна")
+    def close_window(self):
+        self.driver.close()
+
+    # Метод для получения текущего URL
+    @allure.step("Получение текущего URL")
+    def get_current_url(self):
+        return self.driver.current_url

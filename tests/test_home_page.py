@@ -18,8 +18,6 @@ def test_yandex_logo_redirect(driver: WebDriver):
         main_page.switch_to_new_window()
     with allure.step("Проверка URL после редиректа"):
         main_page.wait_and_verify_url_contains('dzen.ru')
-    with allure.step("Закрытие текущего окна"):
-        main_page.close_current_window()
 
 @allure.title("Проверка редиректа на главную страницу Самоката по клику на логотип")
 @allure.description("Проверяет, что при клике на логотип Самоката на странице заказа происходит переход на главную страницу Самоката")

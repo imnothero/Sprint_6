@@ -6,14 +6,12 @@ from selenium.common.exceptions import TimeoutException
 from locators.order_page_locators import OrderPageLocators
 from pages.base_page import BasePage
 from config import SCOOTER_URL
-from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
 
 
 class OrderPage(BasePage):
     def __init__(self, driver: WebDriver):
         super().__init__(driver)
-        self.driver = driver
 
     @allure.step("Открытие страницы заказа через кнопку вверху")
     def open_order_page_from_top(self, personal_data, rental_data):
@@ -41,15 +39,13 @@ class OrderPage(BasePage):
     def click_order_button(self, button_locator):
         with allure.step("Ожидание исчезновения спиннера"):
             try:
-                WebDriverWait(self.driver, 5).until(
-                    EC.invisibility_of_element_located(OrderPageLocators.MODAL_OVERLAY)
-                )
+                self.wait.until(EC.invisibility_of_element_located(OrderPageLocators.MODAL_OVERLAY))
             except TimeoutException:
                 print("Спиннер не исчез вовремя.")
         
         with allure.step("Клик по кнопке"):
             element = self.wait.until(EC.element_to_be_clickable(button_locator))
-            self.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", element)
+            self.scroll_to_element(element)  # Используем метод из BasePage
             element.click()
 
     @allure.step("Заполнение личной информации")
@@ -70,7 +66,7 @@ class OrderPage(BasePage):
     @allure.step("Выбор станции метро: {station_name}")
     def select_metro_station(self, station_name):
         self.click_element(OrderPageLocators.METRO_INPUT)
-        metro_station_locator = (By.XPATH, f"//li[@class='select-search__row' and contains(., '{station_name}')]")
+        metro_station_locator = (OrderPageLocators.METRO_STATION[0], OrderPageLocators.METRO_STATION[1].format(station_name))
         self.click_element(metro_station_locator)
         selected_station = self.find_element(OrderPageLocators.METRO_INPUT)
         assert station_name in selected_station.get_attribute("value"), f"Станция {station_name} не выбрана"
@@ -94,14 +90,14 @@ class OrderPage(BasePage):
     @allure.step("Выбор даты доставки: {date}")
     def select_date(self, date):
         self.click_element(OrderPageLocators.RENTAL_DATE)
-        day = date.split(".")[0]  
-        date_locator = (By.XPATH, f"//div[contains(@class, 'react-datepicker__day') and not(contains(@class, 'outside-month')) and text()='{day}']")
+        day = date.split(".")[0]
+        date_locator = (OrderPageLocators.DATE_PICKER_DAY[0], OrderPageLocators.DATE_PICKER_DAY[1].format(day))
         self.click_element(date_locator)
 
     @allure.step("Выбор срока аренды: {period}")
     def select_rental_period(self, period):
         self.click_element(OrderPageLocators.RENTAL_PERIOD)
-        period_locator = (By.XPATH, f"//div[@class='Dropdown-option' and text()='{period}']")
+        period_locator = (OrderPageLocators.PERIOD_OPTION[0], OrderPageLocators.PERIOD_OPTION[1].format(period))
         self.click_element(period_locator)
 
     @allure.step("Проверка отображения сообщения об успешном заказе")
