@@ -1,0 +1,10 @@
+Попытка 1 клика не удалась: Message: Element <div id="accordion__heading-2" class="accordion__button"> is not clickable at point (951,477) because another element <img src="/assets/scooter.png"> obscures it
+Stacktrace:
+RemoteError@chrome://remote/content/shared/RemoteError.sys.mjs:8:8
+WebDriverError@chrome://remote/content/shared/webdriver/Errors.sys.mjs:199:5
+ElementClickInterceptedError@chrome://remote/content/shared/webdriver/Errors.sys.mjs:351:5
+webdriverClickElement@chrome://remote/content/marionette/interaction.sys.mjs:177:11
+interaction.clickElement@chrome://remote/content/marionette/interaction.sys.mjs:136:11
+clickElement@chrome://remote/content/marionette/actors/MarionetteCommandsChild.sys.mjs:354:29
+receiveMessage@chrome://remote/content/marionette/actors/MarionetteCommandsChild.sys.mjs:230:31
+
