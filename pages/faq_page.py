@@ -18,11 +18,8 @@ class FaqPage(BasePage):
         for attempt in range(max_attempts):
             try:
                 with allure.step(f"Попытка {attempt + 1}: Клик на вопрос: {question_locator}"):
-                    question = self.wait.until(EC.element_to_be_clickable(question_locator))
-                    self.scroll_to_element(question)  # Используем метод из BasePage
-                    question.click()
+                    self.click_element(question_locator)
                     return self
-
             except (TimeoutException, ElementClickInterceptedException) as e:
                 print(f"Попытка {attempt + 1} клика не удалась: {e}")
                 if attempt == max_attempts - 1:
@@ -32,5 +29,4 @@ class FaqPage(BasePage):
 
     @allure.step("Получение текста ответа: {answer_locator}")
     def get_answer_text(self, answer_locator): 
-        answer = self.wait.until(EC.visibility_of_element_located(answer_locator))
-        return answer.text
+        return self.find_element(answer_locator).text

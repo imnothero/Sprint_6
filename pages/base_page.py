@@ -19,43 +19,36 @@ class BasePage:
 
     @allure.step("Клик по элементу: {locator}")
     def click_element(self, locator):
-        try:
-            element = self.wait.until(EC.element_to_be_clickable(locator))
-            self.scroll_to_element(element)  # Используем новый метод
-            element.click()
-        except TimeoutException as e:
-            print(f"Элемент не кликабельный: {locator}. Ошибка: {e}")
-            raise
+        element = self.wait.until(EC.element_to_be_clickable(locator))
+        self.scroll_to_element(element)
+        element.click()
 
     @allure.step("Ввод текста '{text}' в поле: {locator}")
     def enter_text(self, locator, text):
-        try:
-            element = self.wait.until(EC.visibility_of_element_located(locator))
-            element.clear()
-            element.send_keys(text)
-        except TimeoutException as e:
-            print(f"Поле ввода не найдено: {locator}. Ошибка: {e}")
-            raise
+        element = self.wait.until(EC.visibility_of_element_located(locator))
+        element.clear()
+        element.send_keys(text)
 
     @allure.step("Проверка наличия элемента: {locator}")
     def element_is_present(self, locator, timeout=10):
         try:
-            self.wait.until(EC.visibility_of_element_located(locator))
+            self.wait.until(EC.presence_of_element_located(locator))
             return True
         except TimeoutException:
             return False
 
-    # Новый метод для прокрутки элемента
+    @allure.step("Ожидание исчезновения элемента: {locator}")
+    def wait_for_element_invisibility(self, locator, timeout=10):
+        self.wait.until(EC.invisibility_of_element_located(locator))
+
     @allure.step("Прокрутка к элементу")
     def scroll_to_element(self, element):
         self.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", element)
 
-    # Метод для клика через JavaScript
     @allure.step("Клик по элементу через JavaScript: {element}")
     def execute_script_click(self, element):
         self.driver.execute_script("arguments[0].click();", element)
 
-    # Методы для работы с окнами
     @allure.step("Переключение на окно: {window_handle}")
     def switch_to_window(self, window_handle):
         self.driver.switch_to.window(window_handle)
@@ -68,7 +61,18 @@ class BasePage:
     def close_window(self):
         self.driver.close()
 
-    # Метод для получения текущего URL
     @allure.step("Получение текущего URL")
     def get_current_url(self):
         return self.driver.current_url
+
+    @allure.step("Ожидание URL содержит: {expected_url}")
+    def wait_for_url_contains(self, expected_url, timeout=15):
+        self.wait.until(EC.url_contains(expected_url))
+
+    @allure.step("Ожидание URL равен: {expected_url}")
+    def wait_for_url_to_be(self, expected_url, timeout=15):
+        self.wait.until(EC.url_to_be(expected_url))
+
+    @allure.step("Ожидание открытия нового окна")
+    def wait_for_new_window(self, timeout=10):
+        self.wait.until(lambda x: len(self.get_window_handles()) > 1)

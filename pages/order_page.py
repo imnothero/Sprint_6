@@ -1,8 +1,5 @@
 import allure
 from selenium.webdriver.remote.webdriver import WebDriver
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException
 from locators.order_page_locators import OrderPageLocators
 from pages.base_page import BasePage
 from config import SCOOTER_URL
@@ -38,15 +35,11 @@ class OrderPage(BasePage):
     @allure.step("Клик на кнопку 'Заказать' с локатором: {button_locator}")
     def click_order_button(self, button_locator):
         with allure.step("Ожидание исчезновения спиннера"):
-            try:
-                self.wait.until(EC.invisibility_of_element_located(OrderPageLocators.MODAL_OVERLAY))
-            except TimeoutException:
-                print("Спиннер не исчез вовремя.")
+            # Заменяем wait.until на wait_for_element_invisibility
+            self.wait_for_element_invisibility(OrderPageLocators.MODAL_OVERLAY, timeout=5)
         
         with allure.step("Клик по кнопке"):
-            element = self.wait.until(EC.element_to_be_clickable(button_locator))
-            self.scroll_to_element(element)  # Используем метод из BasePage
-            element.click()
+            self.click_element(button_locator)
 
     @allure.step("Заполнение личной информации")
     def fill_personal_info(self, name, surname, address, metro_station, phone):
@@ -68,7 +61,7 @@ class OrderPage(BasePage):
         self.click_element(OrderPageLocators.METRO_INPUT)
         metro_station_locator = (OrderPageLocators.METRO_STATION[0], OrderPageLocators.METRO_STATION[1].format(station_name))
         self.click_element(metro_station_locator)
-        selected_station = self.find_element(OrderPageLocators.METRO_INPUT)
+        selected_station = self.find_element(OrderPageLocators.METRO_INPUT)  # Заменяем wait.until
         assert station_name in selected_station.get_attribute("value"), f"Станция {station_name} не выбрана"
 
     @allure.step("Заполнение информации об аренде")
@@ -106,4 +99,4 @@ class OrderPage(BasePage):
 
     @allure.step("Получение текста сообщения об успешном заказе")
     def get_success_message(self):
-        return self.find_element(OrderPageLocators.SUCCESS_MODAL).text
+        return self.find_element(OrderPageLocators.SUCCESS_MODAL).text 
